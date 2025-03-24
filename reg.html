@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Push-Subscription Test</title>
+</head>
+<body>
+    <h1>Test der Push-Subscription</h1>
+    <button id="subscribeBtn">Jetzt anmelden</button>
+    <button id="button1">Send Push Nachricht 1</button>
+
+
+    <script>
+        const publicKey = 'BCoYmH-QfUTpwox3LTJiaa1p1bg9s6MrC-J5eHu-1mm8kNJYaQj5J5n67UQiKurEpx9R4l11Mhm8SGAifPeydc8';
+
+        // Überprüfen, ob der Service Worker und Push API verfügbar sind
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            document.getElementById('subscribeBtn').addEventListener('click', async () => {
+                try {
+                    // Service Worker registrieren
+                    const registration = await navigator.serviceWorker.register('sw.js');
+                    console.log('Service Worker registriert', registration);
+
+                    // Push-Subscription anfordern
+                    const subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: publicKey
+                    });
+
+                    console.log('Subscription erhalten', subscription);
+
+                    // Senden der Subscription-Daten an den Server
+                    fetch('subscripe.php', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        user_id: 'flop-59136d64-48dc-45af-9089-66bec7cbe737',
+        subscription: subscription
+    })
+})
+.then(response => response.text())  // Die Antwort als Text zuerst erhalten
+.then(text => {
+    console.log('Antwort des Servers:', text);  // Text-Antwort loggen
+    return JSON.parse(text);  // Versuche, den Text in JSON zu parsen
+})
+.then(data => {
+    console.log('JSON-Daten:', data);
+})
+.catch(error => {
+    console.error('Fehler:', error);
+});
+
+                } catch (error) {
+                    console.error('Fehler bei der Registrierung der Push-Subscription:', error);
+                }
+            });
+        } else {
+            alert('Push-Notifications oder Service Worker sind nicht verfügbar!');
+        }
+
+
+
+         // Funktion, um eine Push-Nachricht zu senden
+         function sendPushMessage(message) {
+            // Beispiel für den Benutzer, der benachrichtigt werden soll
+            const userId = 'user123'; // Setze die Benutzer-ID
+            fetch('webpush-server.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    message: message,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Push Nachricht gesendet:', data);
+            })
+            .catch(error => {
+                console.error('Fehler beim Senden der Push Nachricht:', error);
+            });
+        }
+
+        // Event Listener für Button 1
+        document.getElementById('button1').addEventListener('click', function() {
+            sendPushMessage('Dies ist Push-Nachricht 1');
+        });
+
+     
+    </script>
+</body>
+</html>
