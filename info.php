@@ -36,7 +36,7 @@ try {
 
 <head>
     <meta charset="UTF-8">
-    <title>Subscription Übersicht</title>
+    <title>Subscriptions</title>
     <style>
         body {
             font-family: sans-serif;
@@ -76,8 +76,8 @@ try {
             <thead>
                 <tr>
                     <th>User ID</th>
+                    <th>Created at</th>
                     <th>Last Push</th>
-
                     <th>Subscription Data (JSON)</th>
                 </tr>
             </thead>
@@ -98,7 +98,7 @@ try {
                         } catch (PDOException $e) {
                             echo json_encode(["error" => "DB Fehler: " . $e->getMessage()]);
                         }
-                        continue; // überspringe diese Zeile in der Ausgabe
+                        continue;
                     }
 
 
@@ -124,6 +124,7 @@ try {
 
                     <tr>
                         <td><?= htmlspecialchars($row['user_id']) ?></td>
+                        <td><?= htmlspecialchars($row['created_at'] ?? '-') ?></td>
                         <td><?= htmlspecialchars($row['last_push_sent_at'] ?? '-') ?></td>
 
                         <td>
