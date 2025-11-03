@@ -28,11 +28,11 @@ function ensureColumnExists(PDO $db, string $table, string $column, string $type
     $stmt = $db->query("PRAGMA table_info($table)");
     foreach ($stmt as $col) {
         if ($col['name'] === $column) {
-            return; // Spalte existiert bereits
+            return;
         }
     }
 
-    // Spalte hinzufügen
+    // add column
     $db->exec("ALTER TABLE $table ADD COLUMN $column $type");
 }
 
